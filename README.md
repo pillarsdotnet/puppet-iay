@@ -1,6 +1,6 @@
 # Infrastructure As Yaml
 
-#### Table of Contents
+## Table of Contents
 
 1. [Description](#description)
 2. [Setup - The basics of getting started with iay](#setup)
@@ -18,7 +18,9 @@ This module may be used to build and maintain infrastructure via Terraform.
 
 ### Setup Requirements **OPTIONAL**
 
-As noted in [`metadata.json`](https://github.com/pillarsdotnet/puppet-iay/blob/master/metadata.json), the following are required:
+As noted in [`metadata.json`](
+https://github.com/pillarsdotnet/puppet-iay/blob/master/metadata.json), the
+following are required:
 
 * Puppet [Enterprise](https://puppet.com/download-puppet-enterprise)
   or [Open-source](https://puppet.com/download-open-source-puppet) (4.10 or later)
@@ -28,14 +30,14 @@ As noted in [`metadata.json`](https://github.com/pillarsdotnet/puppet-iay/blob/m
 
 Include the `iay` class on a single node, either via the per-node hiera data:
 
-```
+```yaml
 classes:
   - 'iay'
 ```
 
 ... or in the node manifest:
 
-```
+```puppet
 include ::iay
 ```
 
@@ -53,8 +55,7 @@ Not all Terraform provisioners have been coded yet.
 
 ## Development
 
-Submit bug-reports, issues, and pull-requests to
-https://github.com/pillarsdotnet/puppet-iay
+Submit bug-reports, issues, and pull-requests to [this project](https://github.com/pillarsdotnet/puppet-iay).
 
 ## Changelog
 

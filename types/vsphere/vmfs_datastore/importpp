@@ -1,0 +1,5 @@
+# The datastore Managed Object ID combined with the Host System ID.
+
+type IAY::Vsphere::VMFS_Datastore::Import = Pattern[
+  /\Adatastore-[0-9]+:host-[0-9]+\z/,
+]

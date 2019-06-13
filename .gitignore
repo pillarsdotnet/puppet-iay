@@ -17,6 +17,7 @@
 /.vagrant/
 /Gemfile.local
 /Gemfile.lock
+/REFERENCE.md
 /bin/
 /convert_report.txt
 /coverage/
