@@ -16,6 +16,8 @@ class iay(
   IAY::Hash            $hash    = {},
   Stdlib::Absolutepath $workdir = '/var/iay',
 ){
+  include hashicorp::terraform
+  
   file { $workdir:
     ensure => 'directory',
     mode   => '0750',
@@ -57,7 +59,7 @@ class iay(
   }
   Exec { 
     path    => '/usr/local/bin:/usr/bin',
-    require => Package['terraform'],
+    require => Hashicorp::Download['terraform'],
   }
   exec { 'terraform init':
     before      => Anchor['iay-terraform-initialized'],
