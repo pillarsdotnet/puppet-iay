@@ -52,6 +52,7 @@ class iay(
     }
     file { "${k}.tf.json":
       ensure  => 'file',
+      before  => Exec['terraform init'],
       content => inline_template('<%= JSON.pretty_generate(@content) %>'),
       mode    => '0640',
       path    => "${workdir}/${k}.tf.json",
@@ -64,7 +65,6 @@ class iay(
   exec { 'terraform init':
     before      => Anchor['iay-terraform-initialized'],
     cwd         => $workdir,
-    require     => File['provider.tf.json'],
   }
   anchor { 'iay-terraform-initialized': }
   $hash.get('resource', {}).each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
