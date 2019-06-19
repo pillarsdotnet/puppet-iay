@@ -57,24 +57,21 @@ class iay(
   }
   Exec { path => '/usr/local/bin:/usr/bin' }
   exec { 'terraform init':
+    before      => Anchor['iay-terraform-initialized'],
     cwd         => $workdir,
-    notify      => File['terraform.tfstate'],
     refreshonly => true,
     subscribe   => File['provider.tf.json'],
   }
-  file { 'terraform.tfstate':
-    ensure  => 'absent',
-    path    => "${workdir}/terraform.tfstate",
-    require => Exec['terraform init'],
-  }
+  anchor { 'iay-terraform-initialized': }
   $hash['resource'].each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
     $rhash.each |IAY::Generic::String1_255 $rname, IAY::Generic::Hash::Any $rval| {
       exec { "terraform import ${rtype}.${rname} '${rval['import']}'":
         before      => Exec['terraform apply'],
         cwd         => $workdir,
         refreshonly => true,
-  returns           => [0, 1],
-        subscribe   => File['resource.tf.json', 'terraform.tfstate']
+        returns     => [0, 1],
+        require     => Anchor['iay-terraform-initialized'],
+        subscribe   => File['resource.tf.json'],
       }
     }
   }
