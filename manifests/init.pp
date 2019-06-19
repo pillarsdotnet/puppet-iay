@@ -64,8 +64,7 @@ class iay(
   exec { 'terraform init':
     before      => Anchor['iay-terraform-initialized'],
     cwd         => $workdir,
-    refreshonly => true,
-    subscribe   => File['provider.tf.json'],
+    require     => File['provider.tf.json'],
   }
   anchor { 'iay-terraform-initialized': }
   $hash['resource'].each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
