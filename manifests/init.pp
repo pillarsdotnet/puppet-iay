@@ -65,13 +65,15 @@ class iay(
   exec { 'terraform init':
     before      => Anchor['iay-terraform-initialized'],
     cwd         => $workdir,
+    refreshonly => true,
+    subscribe   => File[$workdir, 'provider.tf.json'],
   }
   anchor { 'iay-terraform-initialized': }
   $hash.get('resource', {}).each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
     $rhash.each |IAY::Generic::String1_255 $rname, IAY::Generic::Hash::Any $rval| {
       exec { "terraform import ${rtype}.${rname} '${rval['import']}'":
-        before      => Exec['terraform apply'],
         cwd         => $workdir,
+	notify      => Exec['terraform apply'],
         refreshonly => true,
         returns     => [0, 1],
         require     => Anchor['iay-terraform-initialized'],
@@ -80,9 +82,11 @@ class iay(
     }
   }
   exec { 'terraform apply':
-    command   => 'terraform apply -auto-approve',
-    cwd       => $workdir,
-    logoutput => true,
-    timeout   => 0,
+    command     => 'terraform apply -auto-approve',
+    cwd         => $workdir,
+    logoutput   => true,
+    onlyif      => 'test -f resource.tf.json',
+    refreshonly => true,
+    timeout     => 0,
   }
 }
