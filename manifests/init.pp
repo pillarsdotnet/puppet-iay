@@ -55,7 +55,10 @@ class iay(
       path    => "${workdir}/${k}.tf.json",
     }
   }
-  Exec { path => '/usr/local/bin:/usr/bin' }
+  Exec { 
+    path    => '/usr/local/bin:/usr/bin',
+    require => Package['terraform'],
+  }
   exec { 'terraform init':
     before      => Anchor['iay-terraform-initialized'],
     cwd         => $workdir,
