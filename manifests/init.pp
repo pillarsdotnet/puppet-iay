@@ -67,7 +67,7 @@ class iay(
     require     => File['provider.tf.json'],
   }
   anchor { 'iay-terraform-initialized': }
-  $hash['resource'].each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
+  $hash.get('resource', {}).each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
     $rhash.each |IAY::Generic::String1_255 $rname, IAY::Generic::Hash::Any $rval| {
       exec { "terraform import ${rtype}.${rname} '${rval['import']}'":
         before      => Exec['terraform apply'],
