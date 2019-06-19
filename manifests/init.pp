@@ -58,7 +58,9 @@ class iay(
       path    => "${workdir}/${k}.tf.json",
     }
   }
-  Exec { 
+  # Must have at least one provider before calling terraform init.
+  File <| title == 'provider.tf.json' |> ~> Exec['terraform init']
+  Exec {
     path    => '/usr/local/bin:/usr/bin',
     require => Hashicorp::Download['terraform'],
   }
@@ -66,7 +68,6 @@ class iay(
     before      => Anchor['iay-terraform-initialized'],
     cwd         => $workdir,
     refreshonly => true,
-    subscribe   => File[$workdir, 'provider.tf.json'],
   }
   anchor { 'iay-terraform-initialized': }
   $hash.get('resource', {}).each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
