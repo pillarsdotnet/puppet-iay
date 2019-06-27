@@ -22,6 +22,14 @@ class iay(
     ensure => 'directory',
     mode   => '0750',
   }
+  [ 'rehome-redhat' ].each |$file| {
+    file { "${workdir}/${file}":
+      ensure => 'file',
+      before => Exec['terraform apply'],
+      mode   => '0750',
+      source => "puppet:///modules/${module_name}/${file}",
+    }
+  }
   $hash.each |$k,$v| {
     $content = {
       $k => $k? {
