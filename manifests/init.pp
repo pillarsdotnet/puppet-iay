@@ -17,7 +17,7 @@ class iay(
   Stdlib::Absolutepath $workdir = '/var/iay',
 ){
   include hashicorp::terraform
-  
+
   file { $workdir:
     ensure => 'directory',
     mode   => '0750',
@@ -74,7 +74,7 @@ class iay(
     $rhash.each |IAY::Generic::String1_255 $rname, IAY::Generic::Hash::Any $rval| {
       exec { "terraform import ${rtype}.${rname} '${rval['import']}'":
         cwd         => $workdir,
-	notify      => Exec['terraform apply'],
+        notify      => Exec['terraform apply'],
         refreshonly => true,
         returns     => [0, 1],
         require     => Anchor['iay-terraform-initialized'],

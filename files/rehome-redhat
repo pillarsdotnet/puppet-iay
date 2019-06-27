@@ -1,0 +1,38 @@
+#!/bin/bash
+test "$(id -u)" -eq 0 || exec sudo -E "$0" "$@"
+
+host=$1
+domn=$2
+addr=$3
+subn=$4
+gatw=$5
+
+devc=$(ip link | sed -ne 's/^[0-9]\+: *\([^:]\+\): *<BROADCAST.*$/\1/p')
+
+ip addr add "${addr}/${subn}" dev "${devc}"
+hostname "${host}"
+cp /etc/hosts /etc/hosts.bak
+grep -v "^${addr} " /etc/hosts.bak >/etc/hosts
+echo "${addr} ${host}.${domn} ${host}" >>/etc/hosts
+hostname -f >/etc/hostname
+cat >"/etc/sysconfig/network-scripts/ifcfg-${devc}" <<EOF
+BOOTPROTO=none
+BROWSER_ONLY=no
+DEFROUTE=yes
+DEVICE=${devc}
+GATEWAY=${gatw}
+IPADDR=${addr}
+IPV4_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+IPV6_AUTOCONF=no
+IPV6_DEFROUTE=no
+IPV6_FAILURE_FATAL=no
+IPV6INIT=no
+NAME=${devc}
+ONBOOT=yes
+PREFIX=21
+PROXY_METHOD=none
+TYPE=Ethernet
+EOF
+
+exit 0
