@@ -16,7 +16,7 @@ shift 4
 
 # Populate /etc/hosts with a list of IP addresses and hostnames.
 
-while test "$1" -a test "$2"
+while test -n "$1" && test -n "$2"
 do
   addr=$1
   host=$2
