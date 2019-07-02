@@ -23,6 +23,15 @@ class iay(
     path    => '/usr/local/bin:/usr/bin',
     require => Hashicorp::Download['terraform'],
   }
+  [ $logdir, $workdir ].each |$d| {
+    file { $d:
+      ensure => 'directory',
+      before => Exec['terraform init'],
+      group  => $group,
+      owner  => $user,
+      mode   => '0700',
+    }
+  }
   $hash.each |$k,$v| {
     $content = {
       $k => $k? {
@@ -49,15 +58,6 @@ class iay(
           }
         ),
         default    => $v,
-      }
-    }
-    [ $logdir, $workdir ].each |$d| {
-      file { $d:
-        ensure => 'directory',
-        before => Exec['terraform init'],
-        group  => $group,
-        owner  => $user,
-        mode   => '0700',
       }
     }
     $logfile = "${logdir}/iay.log"
