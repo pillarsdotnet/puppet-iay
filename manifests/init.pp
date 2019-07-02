@@ -73,8 +73,9 @@ class iay(
     case $k {
       'provider': {
         # Must have at least one provider before calling terraform init.
-        exec { 'terraform init >> logfile 2>&1':
+        exec { 'terraform init':
           before      => Anchor['iay-terraform-initialized'],
+          command     => 'terraform init >> logfile 2>&1',
           cwd         => $workdir,
           group       => $group,
           provider    => 'shell',
