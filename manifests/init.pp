@@ -86,10 +86,6 @@ class iay(
       'resource': {
         # Must have at least one resource before invoking terraform at all.
         include hashicorp::terraform
-        file { $workdir:
-          ensure => 'directory',
-          mode   => '0750',
-        }
         [ 'rehome-redhat' ].each |$file| {
           file { "${workdir}/${file}":
             ensure => 'file',
