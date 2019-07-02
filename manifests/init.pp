@@ -26,7 +26,6 @@ class iay(
     group       => $group,
     path        => '/usr/local/bin:/usr/bin',
     provider    => 'shell',
-    refreshonly => true,
     require     => Hashicorp::Download['terraform'],
     user        => $user,
   }
@@ -52,16 +51,16 @@ class iay(
   [ 'rehome-redhat' ].each |$file| {
     file { "${workdir}/${file}":
       ensure => 'file',
+      before => Anchor['iay-terraform-configured'],
       mode   => '0750',
       source => "puppet:///modules/${module_name}/${file}",
     }
   }
   anchor { 'iay-terraform-imported': }
   exec { 'terraform apply':
-    command   => "terraform apply -auto-approve >>${logfile} 2>&1",
-    require   => Anchor['iay-terraform-imported'],
-    subscribe => File['resource.tf.json'],
-    timeout   => 0,
+    command => "terraform apply -auto-approve >>${logfile} 2>&1",
+    require => Anchor['iay-terraform-imported'],
+    timeout => 0,
   }
   $hash.each |$k,$v| {
     $content = {
@@ -103,11 +102,10 @@ class iay(
         $hash.get('resource', {}).each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
           $rhash.each |IAY::Generic::String1_255 $rname, IAY::Generic::Hash::Any $rval| {
             exec { "terraform import ${rtype}.${rname}":
-              before    => Anchor['iay-terraform-imported'],
-              command   => "terraform import ${rtype}.${rname} '${rval['import']}' >>${logfile} 2>&1",
-              require   => Anchor['iay-terraform-initialized'],
-              returns   => [0, 1],
-              subscribe => File['resource.tf.json'],
+              before  => Anchor['iay-terraform-imported'],
+              command => "terraform import ${rtype}.${rname} '${rval['import']}' >>${logfile} 2>&1",
+              require => Anchor['iay-terraform-initialized'],
+              returns => [0, 1],
             }
           }
         }
