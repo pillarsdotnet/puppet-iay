@@ -91,7 +91,9 @@ class iay(
           file { "${workdir}/${file}":
             ensure => 'file',
             before => Exec['terraform apply'],
+            group  => $group,
             mode   => '0750',
+            owner  => $user,
             source => "puppet:///modules/${module_name}/${file}",
           }
         }
