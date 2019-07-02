@@ -19,18 +19,49 @@ class iay(
   String[1]            $user    = 'puppet',
   Stdlib::Absolutepath $workdir = '/var/iay',
 ){
+  include hashicorp::terraform
+  $logfile = "${logdir}/iay.log"
   Exec {
-    path    => '/usr/local/bin:/usr/bin',
-    require => Hashicorp::Download['terraform'],
+    cwd         => $workdir,
+    group       => $group,
+    path        => '/usr/local/bin:/usr/bin',
+    provider    => 'shell',
+    refreshonly => true,
+    require     => Hashicorp::Download['terraform'],
+    user        => $user,
   }
+  File {
+    before => Anchor['iay-terraform-configured'],
+    owner  => $user,
+    group  => $group,
+  }
+  anchor { 'iay-terraform-configured': }
+  exec { 'terraform init':
+    before  => Anchor['iay-terraform-initialized'],
+    command => 'terraform init >> logfile 2>&1',
+    require => Anchor['iay-terraform-configured'],
+  }
+  File <| title == 'provider.tf.json' |> ~> Exec['terraform init']
+  anchor { 'iay-terraform-initialized': }
   [ $logdir, $workdir ].each |$d| {
     file { $d:
       ensure => 'directory',
-      before => Exec['terraform init'],
-      group  => $group,
-      owner  => $user,
       mode   => '0700',
     }
+  }
+  [ 'rehome-redhat' ].each |$file| {
+    file { "${workdir}/${file}":
+      ensure => 'file',
+      mode   => '0750',
+      source => "puppet:///modules/${module_name}/${file}",
+    }
+  }
+  anchor { 'iay-terraform-imported': }
+  exec { 'terraform apply':
+    command   => "terraform apply -auto-approve >>${logfile} 2>&1",
+    require   => Anchor['iay-terraform-imported'],
+    subscribe => File['resource.tf.json'],
+    timeout   => 0,
   }
   $hash.each |$k,$v| {
     $content = {
@@ -60,67 +91,25 @@ class iay(
         default    => $v,
       }
     }
-    $logfile = "${logdir}/iay.log"
     file { "${k}.tf.json":
       ensure  => 'file',
-      before  => Exec['terraform init'],
       content => inline_template('<%= JSON.pretty_generate(@content) %>'),
-      group   => $group,
       mode    => '0640',
-      owner   => $user,
       path    => "${workdir}/${k}.tf.json",
     }
     case $k {
-      'provider': {
-        # Must have at least one provider before calling terraform init.
-        exec { 'terraform init':
-          before      => Anchor['iay-terraform-initialized'],
-          command     => 'terraform init >> logfile 2>&1',
-          cwd         => $workdir,
-          group       => $group,
-          provider    => 'shell',
-          refreshonly => true,
-          subscribe   => File['provider.tf.json'],
-          user        => $user,
-        }
-      }
       'resource': {
         # Must have at least one resource before invoking terraform at all.
-        include hashicorp::terraform
-        [ 'rehome-redhat' ].each |$file| {
-          file { "${workdir}/${file}":
-            ensure => 'file',
-            before => Exec['terraform apply'],
-            group  => $group,
-            mode   => '0750',
-            owner  => $user,
-            source => "puppet:///modules/${module_name}/${file}",
-          }
-        }
-        anchor { 'iay-terraform-initialized': }
         $hash.get('resource', {}).each |IAY::Resource_Type $rtype, IAY::Generic::Hash::Any $rhash| {
           $rhash.each |IAY::Generic::String1_255 $rname, IAY::Generic::Hash::Any $rval| {
-            exec { "terraform import ${rtype}.${rname} '${rval['import']}' >>${logfile} 2>&1":
-              cwd         => $workdir,
-              group       => $group,
-              notify      => Exec['terraform apply'],
-              provider    => 'shell',
-              refreshonly => true,
-              require     => Anchor['iay-terraform-initialized'],
-              returns     => [0, 1],
-              subscribe   => File['resource.tf.json'],
-              user        => $user,
+            exec { "terraform import ${rtype}.${rname}":
+              before    => Anchor['iay-terraform-imported'],
+              command   => "terraform import ${rtype}.${rname} '${rval['import']}' >>${logfile} 2>&1",
+              require   => Anchor['iay-terraform-initialized'],
+              returns   => [0, 1],
+              subscribe => File['resource.tf.json'],
             }
           }
-        }
-        exec { 'terraform apply':
-          command     => "terraform apply -auto-approve >>${logfile} 2>&1",
-          cwd         => $workdir,
-          group       => $group,
-          onlyif      => 'test -f resource.tf.json',
-          refreshonly => true,
-          timeout     => 0,
-          user        => $user,
         }
       }
       default: {}
