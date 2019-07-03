@@ -5,7 +5,7 @@ define iay::content(Hash $value) {
   file { "iay ${title}":
     ensure  => 'file',
     content => inline_template(
-      '<%= JSON.pretty_generate({@content) %>'
+      '<%= JSON.pretty_generate(@content) %>'
     ),
     group   => $iay::group,
     mode    => '0640',
