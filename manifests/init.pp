@@ -36,7 +36,7 @@ class iay(
     owner  => $user,
     group  => $group,
   }
-  $hash.each |$k,$v| {
-    create_resources("iay::${k}")
+  $hash.keys.each |$k| {
+    contain "iay::${k}"
   }
 }

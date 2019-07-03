@@ -1,6 +1,6 @@
 # Process a resoruce block.
 
-define iay::resource {
+class iay::resource {
   $resource = $iay::hash.get('resource')
   if $resource {
     include iay::terraform
