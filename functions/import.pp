@@ -4,9 +4,9 @@ function iay::import(
   Any                       $ret,
 ) >> Any
 {
-  exec { "iay-terraform-import ${title}":
+  exec { "iay-terraform-import ${key}":
     before   => Anchor['iay-terraform-imported'],
-    command  => "terraform import ${title} '${val}' >>${iay::logfile} 2>&1",
+    command  => "terraform import ${key} '${val}' >>${iay::logfile} 2>&1",
     provider => 'shell',
     user     => $iay::user,
     group    => $iay::group,
