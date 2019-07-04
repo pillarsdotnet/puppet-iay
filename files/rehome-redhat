@@ -2,8 +2,21 @@
 # A script to update /etc/hosts, local IP address, hostname, and route.
 
 # Ensure this script runs as root.
-
 test "$(id -u)" -eq 0 || exec sudo -E "$0" "$@"
+
+
+# Get the primary network device.
+devc=$(ip link | sed -ne 's/^[0-9]\+: *\([^:]\+\): *<BROADCAST.*$/\1/p')
+
+if test -z "$2"
+then
+  # Called with one argument = unassign the landing-zone IP.
+
+  sleep 1;
+  ip addr del "$1" dev "$devc"
+  exit 0
+fi
+
 
 # Fetch the landing-ip, gateway, subnet, and domain name.
 
@@ -27,10 +40,6 @@ do
 done
 
 # The last given IP/Host pair belongs to this host.
-
-# Get the primary network device.
-
-devc=$(ip link | sed -ne 's/^[0-9]\+: *\([^:]\+\): *<BROADCAST.*$/\1/p')
 
 # Add the (new) local IP address.
 
@@ -70,6 +79,7 @@ PROXY_METHOD=none
 TYPE=Ethernet
 EOF
 
-# Unassign the landing-zone IP just before exiting.
+# Fork a copy to unassign the landing-zone IP.
+"$0" "${land}/${subn}" </dev/null &>/dev/null &
 
-/bin/bash -c "sleep 1; ip addr del ${land}/${subn} dev ${devc}" & exit 0
+exit 0
