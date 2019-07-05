@@ -1,38 +1,38 @@
 #!/bin/bash
 # A script to update /etc/hosts, local IP address, hostname, and route.
 
-# Ensure this script runs as root.
-test "$(id -u)" -eq 0 || exec sudo -i -- "$0" "$@"
+# Ensure we are directly runnable.
+chmod +x "${0}"
 
+# Ensure this script runs as root.
+test "$(id -u)" -eq 0 || sudo -i -- "${0}" "${@}" && exit 0
 
 # Get the primary network device.
 devc=$(ip link | sed -ne 's/^[0-9]\+: *\([^:]\+\): *<BROADCAST.*$/\1/p')
 
-if test -z "$2"
-then
-  # Called with one argument = unassign the landing-zone IP.
+# Fech the landin-zone
+land="${1}"
 
-  sleep 1;
-  ip addr del "$1" dev "$devc"
-  exit 0
-fi
+# Called with only one argument = delete landing-zone ip.
+test -z "$2" && ip addr del "${land}" dev "${devc}" && exit 0
 
-
-# Fetch the landing-ip, gateway, subnet, and domain name.
-
-land=$1
-gatw=$2
-subn=$3
-domn=$4
+# Fetch the gateway, subnet, and domain name.
+gatw="${2}"
+subn="${3}"
+domn="${4}"
 
 shift 4
 
 # Populate /etc/hosts with a list of IP addresses and hostnames.
+cat >/etc/hosts <<EOF
+127.0.0.1 localhost4.localdomain4 localhost4 localhost.localdomain localhost
+::1       localhost6.localdomain6 localhost6 localhost.localdomain localhost
+EOF
 
-while test -n "$1" && test -n "$2"
+while test -n "${1}" && test -n "${2}"
 do
-  addr=$1
-  host=$2
+  addr="${1}"
+  host="${2}"
   cp /etc/hosts /etc/hosts.bak
   grep -v "^${addr} " /etc/hosts.bak >/etc/hosts
   echo "${addr} ${host}.${domn} ${host}" >>/etc/hosts
@@ -42,23 +42,18 @@ done
 # The last given IP/Host pair belongs to this host.
 
 # Add the (new) local IP address.
-
 ip addr add "${addr}/${subn}" dev "${devc}"
 
 # Add the default route.
-
-ip route add 0.0.0.0/0 via inet "${gatw}"
+ip route add default via inet "${gatw}"
 
 # Set the hostname.
-
 hostname "${host}"
 
 # Write /etc/hostname.
-
 hostname -f >/etc/hostname
 
 # Write the ifcfg file.
-
 cat >"/etc/sysconfig/network-scripts/ifcfg-${devc}" <<EOF
 BOOTPROTO=none
 BROWSER_ONLY=no
@@ -78,8 +73,3 @@ PREFIX=21
 PROXY_METHOD=none
 TYPE=Ethernet
 EOF
-
-# Fork a copy to unassign the landing-zone IP.
-/bin/bash -c "${0} ${land}/${subn}" </dev/null &>/dev/null &
-
-exit 0
