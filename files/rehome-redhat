@@ -2,7 +2,7 @@
 # A script to update /etc/hosts, local IP address, hostname, and route.
 
 # Ensure this script runs as root.
-test "$(id -u)" -eq 0 || exec sudo -E "$0" "$@"
+test "$(id -u)" -eq 0 || exec sudo -i -- "$0" "$@"
 
 
 # Get the primary network device.
