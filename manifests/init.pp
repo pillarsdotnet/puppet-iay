@@ -17,7 +17,7 @@ class iay(
   IAY::Hash            $hash    = {},
   Stdlib::Absolutepath $logdir  = '/var/log/iay',
   Stdlib::Absolutepath $logfile = "${logdir}/iay.log",
-  String[1]            $user    = 'puppet',
+  String[1]            $user    = 'root',
   Stdlib::Absolutepath $workdir = '/var/iay',
 ){
   anchor { 'iay-terraform-configured': }
