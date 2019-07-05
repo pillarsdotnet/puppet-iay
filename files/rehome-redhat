@@ -1,11 +1,8 @@
 #!/bin/bash
 # A script to update /etc/hosts, local IP address, hostname, and route.
 
-# Ensure we are directly runnable.
-chmod +x "${0}"
-
 # Ensure this script runs as root.
-test "$(id -u)" -eq 0 || sudo -i -- "${0}" "${@}" && exit 0
+test "$(id -u)" -eq 0 || exit 1
 
 # Get the primary network device.
 devc=$(ip link | sed -ne 's/^[0-9]\+: *\([^:]\+\): *<BROADCAST.*$/\1/p')
