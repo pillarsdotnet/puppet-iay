@@ -3,6 +3,15 @@
 class iay::terraform {
   include hashicorp::terraform
   $logfile = "${iay::logdir}/iay.log"
+
+  file { '/opt/puppetlabs/puppet/autosign.conf':
+    ensure => 'file',
+    before => Anchor['iay-terraform-configured'],
+    group  => 'puppet',
+    mode   => '0640',
+    owner  => 'puppet',
+  }
+
   exec { 'terraform init':
     before  => Anchor['iay-terraform-initialized'],
     command => 'terraform init >> logfile 2>&1',
