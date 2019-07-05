@@ -20,7 +20,6 @@ class iay(
   String[1]            $user    = 'root',
   Stdlib::Absolutepath $workdir = '/var/iay',
 ){
-  include hashicorp::terraform
   anchor { 'iay-terraform-configured': }
   anchor { 'iay-terraform-initialized': }
   anchor { 'iay-terraform-imported': }
