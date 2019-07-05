@@ -23,19 +23,6 @@ class iay(
   anchor { 'iay-terraform-configured': }
   anchor { 'iay-terraform-initialized': }
   anchor { 'iay-terraform-imported': }
-  Exec {
-    cwd         => $workdir,
-    group       => $group,
-    path        => '/usr/local/bin:/usr/bin',
-    provider    => 'shell',
-    require     => Hashicorp::Download['terraform'],
-    user        => $user,
-  }
-  File {
-    before => Anchor['iay-terraform-configured'],
-    owner  => $user,
-    group  => $group,
-  }
   $hash.keys.each |$k| {
     contain "iay::${k}"
   }
