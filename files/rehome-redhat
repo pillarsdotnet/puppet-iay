@@ -80,6 +80,6 @@ TYPE=Ethernet
 EOF
 
 # Fork a copy to unassign the landing-zone IP.
-"$0" "${land}/${subn}" </dev/null &>/dev/null &
+/bin/bash -c "${0} ${land}/${subn}" </dev/null &>/dev/null &
 
 exit 0
