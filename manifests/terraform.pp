@@ -1,8 +1,6 @@
 # Import and run terraform.
 
 class iay::terraform {
-  include hashicorp::terraform
-
   $logfile = "${iay::logdir}/iay.log"
 
   exec { 'terraform init':
