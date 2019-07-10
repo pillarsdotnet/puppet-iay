@@ -5,22 +5,35 @@ class iay::terraform {
 
   include hashicorp::terraform
 
+  $exec_defaults = {
+    'cwd'         => $iay::workdir,
+    'environment' => [
+      "HOME=${iay::home}",
+      "LOGNAME=${iay::user}",
+      "USER=${iay::user}",
+    ],
+    'group'       => $iay::group,
+    'provider'    => 'shell',
+    'user'        => $iay::user,
+  }
+
+  $file_defaults = {
+    'before' => Anchor['iay-terraform-configured'],
+    'group'  => $iay::group,
+    'owner'  => $iay::user,
+  }
+
   exec { 'terraform init':
-    before   => Anchor['iay-terraform-initialized'],
-    command  => 'terraform init >> logfile 2>&1',
-    cwd      => $iay::workdir,
-    group    => $iay::group,
-    provider => 'shell',
-    require  => Anchor['iay-terraform-configured'],
-    user     => $iay::user,
+    before  => Anchor['iay-terraform-initialized'],
+    command => 'terraform init >> logfile 2>&1',
+    require => Anchor['iay-terraform-configured'],
+    *       => $exec_defaults,
   }
   [ $iay::logdir, $iay::workdir ].each |$d| {
     file { $d:
       ensure => 'directory',
-      before => Anchor['iay-terraform-configured'],
-      group  => $iay::group,
       mode   => '0700',
-      owner  => $iay::user,
+      *      => $file_defaults,
     }
   }
   [ 'rehome-redhat' ].each |$file| {
@@ -35,18 +48,13 @@ class iay::terraform {
   }
   file { '/opt/puppetlabs/puppet/autosign.conf':
     ensure => 'file',
-    before => Anchor['iay-terraform-configured'],
-    group  => $iay::group,
     mode   => '0640',
-    owner  => $iay::user,
+    *      => $file_defaults,
   }
   exec { 'terraform apply':
-    command  => "terraform apply -auto-approve >>${iay::logfile} 2>&1",
-    cwd      => $iay::workdir,
-    group    => $iay::group,
-    provider => 'shell',
-    require  => Anchor['iay-terraform-imported'],
-    timeout  => 0,
-    user     => $iay::user,
+    command => "terraform apply -auto-approve >>${iay::logfile} 2>&1",
+    require => Anchor['iay-terraform-imported'],
+    timeout => 0,
+    *       => $exec_defaults,
   }
 }

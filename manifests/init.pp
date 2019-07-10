@@ -15,6 +15,7 @@
 class iay(
   String[1]            $group   = 'puppet',
   IAY::Hash            $hash    = {},
+  String[1]            $home    = '/root',
   Stdlib::Absolutepath $logdir  = '/var/log/iay',
   Stdlib::Absolutepath $logfile = "${logdir}/iay.log",
   String[1]            $user    = 'root',
