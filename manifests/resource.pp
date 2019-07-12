@@ -1,4 +1,4 @@
-# Process a resoruce block.
+# Process a resource block.
 
 class iay::resource {
   $resource = $iay::hash.get('resource')
@@ -14,7 +14,7 @@ class iay::resource {
                 [
                   $rname,
                   Hash(
-                    $rval.reduce({}) |$m, $v| {
+                    $rval.reduce([]) |$m, $v| {
                       $v[0] ? {
                         'import' => iay::import("${rtype}.${rname}", $v[1], $m),
                         default  => $m + $v,
