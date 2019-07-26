@@ -1,6 +1,11 @@
 {
   "author": "Robert August Vincent II",
-  "dependencies": [],
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 5.0.0"
+    }
+  ],
   "issues_url": "https://github.com/pillarsdotnet/puppet-iay/issues",
   "license": "Apache-2.0",
   "name": "pillarsdotnet-iay",
