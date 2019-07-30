@@ -1,10 +1,12 @@
 # Process a data block.
 
 class iay::data {
-  $data = $iay::hash.get('data')
-  if $data {
-    iay::content { 'data':
-      value => $data,
+  if $iah::hash.has_key('data') {
+    $data = $iay::hash['data']
+    if $data {
+      iay::content { 'data':
+        value => $data,
+      }
     }
   }
 }
