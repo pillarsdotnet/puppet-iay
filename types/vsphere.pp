@@ -1,7 +1,7 @@
 type IAY::Vsphere = Struct[
   {
-    password                        => String,
-    user                            => String,
+    password                        => IAY::Generic::Sensitive,
+    user                            => IAY::Generic::String,
     vsphere_server                  => Stdlib::Host,
     Optional[allow_unverified_ssl]  => Boolean,
     Optional[client_debug]          => Boolean,
