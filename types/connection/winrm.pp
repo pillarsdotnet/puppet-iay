@@ -8,7 +8,7 @@ type IAY::Connection::WinRM = Struct[
     Optional[port]        => IAY::Generic::Int0_65535,
     Optional[script_path] => IAY::Generic::Path,
     Optional[timeout]     => IAY::Generic::Duration,
-    Optional[type]        => IAY::Connection::WinRM_Type,
+    Optional['type']      => IAY::Connection::WinRM_Type,
     Optional[use_ntlm]    => IAY::Generic::Boolean,
     Optional[user]        => IAY::Generic::String,
   }
