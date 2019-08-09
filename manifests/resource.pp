@@ -17,8 +17,9 @@ class iay::resource {
                     Hash(
                       $rval.reduce([]) |$m, $v| {
                         $v[0] ? {
-                          'import' => iay::import("${rtype}.${rname}", $v[1], $m),
-                          default  => $m + $v,
+                          'import'    => iay::import("${rtype}.${rname}", $v[1], $m),
+                          /password$/ => $m + { $v[0] => unwrap($v[1]) },
+                          default     => $m + $v,
                         }
                       }
                     )
