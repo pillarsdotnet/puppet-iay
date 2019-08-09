@@ -12,7 +12,7 @@ class iay::provider {
               Hash(
                 $pval.reduce([]) |$m, $v| {
                   $v[0] ? {
-                    /password$/ => $m + { $v[0] => unwrap($v[1]) },
+                    /password$/ => $m + [ $v[0], unwrap($v[1]) ],
                     default     => $m + $v,
                   }
                 }
