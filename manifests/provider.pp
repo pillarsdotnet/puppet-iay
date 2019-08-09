@@ -6,24 +6,17 @@ class iay::provider {
     if $provider {
       iay::content { 'provider':
         value => Hash(
-          $provider.map |$rtype, $rhash| {
+          $provider.map |$pname, $pval| {
             [
-              $rtype,
+              $pname,
               Hash(
-                $rhash.map |$rname, $rval| {
-                  [
-                    $rname,
-                    Hash(
-                      $rval.reduce([]) |$m, $v| {
-                        $v[0] ? {
-                          /password$/ => $m + { $v[0] => unwrap($v[1]) },
-                          default     => $m + $v,
-                        }
-                      }
-                    )
-                  ]
+                $pval.reduce([]) |$m, $v| {
+                  $v[0] ? {
+                    /password$/ => $m + { $v[0] => unwrap($v[1]) },
+                    default     => $m + $v,
+                  }
                 }
-              )
+              ),
             ]
           }
         ),
