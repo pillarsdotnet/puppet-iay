@@ -23,12 +23,11 @@ class iay::terraform {
     'owner'  => $iay::user,
   }
 
-  exec { 'terraform init':
-    before  => Anchor['iay-terraform-initialized'],
-    command => 'terraform init >> logfile 2>&1',
-    require => Anchor['iay-terraform-configured'],
-    *       => $exec_defaults,
+  exec { 'Purge iay::workdir':
+    before  => File[$iay::workdir],
+    command => "/bin/rm -rf ${iay::workdir}",
   }
+
   [ $iay::logdir, $iay::workdir ].each |$d| {
     file { $d:
       ensure => 'directory',
@@ -36,16 +35,14 @@ class iay::terraform {
       *      => $file_defaults,
     }
   }
-  [ 'rehome-redhat' ].each |$file| {
-    file { "${iay::workdir}/${file}":
-      ensure => 'file',
-      before => Anchor['iay-terraform-configured'],
-      group  => $iay::group,
-      mode   => '0750',
-      owner  => $iay::user,
-      source => "puppet:///modules/${module_name}/${file}",
-    }
+
+  exec { 'terraform init':
+    before  => Anchor['iay-terraform-initialized'],
+    command => 'terraform init >> logfile 2>&1',
+    require => Anchor['iay-terraform-configured'],
+    *       => $exec_defaults,
   }
+
   file { '/opt/puppetlabs/puppet/autosign.conf':
     ensure => 'file',
     mode   => '0640',
