@@ -9,6 +9,7 @@ type IAY::Vsphere = Struct[
     Optional[client_debug_path_run] => IAY::Generic::Filename,
     Optional[persist_session]       => IAY::Generic::Boolean,
     Optional[rest_session_path]     => IAY::Generic::Absolutepath,
+    Optional[vim_keep_alive]        => IAY::Generic::Int0,
     Optional[vim_session_path]      => IAY::Generic::Absolutepath,
     # "meta-arguments" defined by Terraform itself.
     Optional[alias]                 => IAY::Generic::Alias,
