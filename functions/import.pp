@@ -6,7 +6,7 @@ function iay::import(
 {
   exec { "iay-terraform-import ${key}":
     before   => Anchor['iay-terraform-imported'],
-    command  => "terraform import ${key} '${val}' >>${iay::logfile} 2>&1",
+    command  => "/usr/local/bin/terraform import ${key} '${val}' >>${iay::logfile} 2>&1",
     provider => 'shell',
     user     => $iay::user,
     group    => $iay::group,
