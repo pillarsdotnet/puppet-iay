@@ -38,7 +38,7 @@ class iay::terraform {
 
   exec { 'terraform init':
     before  => Anchor['iay-terraform-initialized'],
-    command => 'terraform init >> logfile 2>&1',
+    command => '/usr/local/bin/terraform init >> logfile 2>&1',
     require => Anchor['iay-terraform-configured'],
     *       => $exec_defaults,
   }
@@ -49,7 +49,7 @@ class iay::terraform {
     *      => $file_defaults,
   }
   exec { 'terraform apply':
-    command => "terraform apply -auto-approve >>${iay::logfile} 2>&1",
+    command => "/usr/local/bin/terraform apply -auto-approve >>${iay::logfile} 2>&1",
     require => Anchor['iay-terraform-imported'],
     timeout => 0,
     *       => $exec_defaults,
